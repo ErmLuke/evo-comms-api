@@ -1,5 +1,7 @@
 import cookie from 'cookie';
 import Cookies from 'js-cookie'; // for server-side cookie parsing
+import { NavigateFunction } from 'react-router-dom';
+import api from '@/api';
 
 export const isLoggedIn = (reqCookies = null) => {
     if (reqCookies) {
@@ -10,15 +12,17 @@ export const isLoggedIn = (reqCookies = null) => {
     return Boolean(Cookies.get('user_auth_token'));
 };
 
-export const logIn = () => {
+export const logIn = (navigate: NavigateFunction) => {
+
     Cookies.set('user_auth_token', 'true', {
         expires: 1, // 1 day
         sameSite: 'Lax',
     });
+    navigate('/home');
 };
 
-export const logOut = () => {
-    if (typeof window !== 'undefined') {
+export const logOut = async (navigate: NavigateFunction) => {
+    api().post('/logout');
         Cookies.remove('user_auth_token');
-    }
+        navigate('/login');
 };

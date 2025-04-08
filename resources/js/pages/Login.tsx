@@ -14,6 +14,7 @@ const Login = () => {
     const [email, setEmail] = useState('test@example.com');
     const [password, setPassword] = useState('password');
     const [user, setUser] = useState(null);
+    const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
@@ -31,19 +32,28 @@ const Login = () => {
 
             if (response.data.error) {
                 setError(response.data.error);
+                console.log('Error set:', 'Invalid email or password.');
             } else {
-                logIn();
-                navigate('/');
+                logIn(navigate);
                 setUser(response.data.user || { email });
+                setMessage('Logged in successfully.');
                 console.log('Logged in Successfully');
             }
 
         } catch (err: any) {
             console.error('Login failed:', err);
+            if (err.response?.status === 422) {
+                const errors = err.response.data.errors;
+                const messages = Object.values(errors).flat().join(' ');
+                setError(messages); // show all messages in one line
+                return;
+            }
 
             if (err.response?.status === 401) {
                 setError('Invalid email or password.');
+                return;
             }
+            setError('Unknown issue, contact developer.')
         }
     };
 
@@ -70,6 +80,7 @@ const Login = () => {
                     <Button className="w-full" onClick={login}>
                         Login
                     </Button>
+                    {message && <p className="text-sm text-blue-500">{message}</p>}
                     {error && <p className="text-sm text-red-500">{error}</p>}
                 </CardContent>
             </Card>
