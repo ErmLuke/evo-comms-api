@@ -6,14 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { logIn } from '@/utils/auth';
 import { useNavigate } from 'react-router-dom';
-
+import { Eye, EyeOff } from 'lucide-react';
 
 axios.defaults.withCredentials = true;
 
 const Login = () => {
     const [email, setEmail] = useState('test@example.com');
     const [password, setPassword] = useState('password');
-    const [user, setUser] = useState(null);
+    const [showPassword, setShowPassword] = useState(false);
+    const [user,setUser] = useState(null);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -23,43 +24,34 @@ const Login = () => {
     const login = async () => {
         try {
             setError('');
-
-            // Get CSRF token
             await api().get('/sanctum/csrf-cookie');
-
-            // Attempt login
             const response = await api().post('/login', { email, password });
 
             if (response.data.error) {
                 setError(response.data.error);
-                console.log('Error set:', 'Invalid email or password.');
             } else {
                 logIn(navigate);
                 setUser(response.data.user || { email });
                 setMessage('Logged in successfully.');
-                console.log('Logged in Successfully');
             }
-
         } catch (err: any) {
-            console.error('Login failed:', err);
             if (err.response?.status === 422) {
                 const errors = err.response.data.errors;
                 const messages = Object.values(errors).flat().join(' ');
-                setError(messages); // show all messages in one line
+                setError(messages);
                 return;
             }
-
             if (err.response?.status === 401) {
                 setError('Invalid email or password.');
                 return;
             }
-            setError('Unknown issue, contact developer.')
+            setError('Unknown issue, contact developer.');
         }
     };
 
-
     return (
-        <div className="flex items-center justify-center min-h-screen bg-muted">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-muted space-y-6">
+            <h1 className="text-4xl font-bold text-primary">Evo Comms</h1>
             <Card className="w-full max-w-md shadow-xl">
                 <CardHeader>
                     <CardTitle className="text-2xl">Login</CardTitle>
@@ -71,12 +63,21 @@ const Login = () => {
                         onChange={e => setEmail(e.target.value)}
                         placeholder="Email"
                     />
-                    <Input
-                        type="password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        placeholder="Password"
-                    />
+                    <div className="relative">
+                        <Input
+                            type={showPassword ? 'text' : 'password'}
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            placeholder="Password"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(prev => !prev)}
+                            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-primary"
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    </div>
                     <Button className="w-full" onClick={login}>
                         Login
                     </Button>
