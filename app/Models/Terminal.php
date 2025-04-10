@@ -6,11 +6,14 @@ namespace App\Models;
 
 use App\Enums\ActivityStatus;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Terminal extends Model
 {
+    use HasFactory;
+    
     protected $fillable = [
         'name',
         'model',
