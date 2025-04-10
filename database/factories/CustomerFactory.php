@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class CustomerFactory extends Factory
 {
@@ -12,9 +13,11 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
-            'customer_name' => $this->faker->name(),
-            'evotime_id' => 'dog',
-            'evotime_domain' => 'demo',
+            'customer_name' => $this->faker->company(),
+            'created_at' => now(),
+            'updated_at' => now(),
+            'evotime_id' => 'tenant-'.Str::random(10),
+            'evotime_domain' => fn (array $attributes) => Str::slug($attributes['customer_name']).'.evotime.test',
         ];
     }
 }
