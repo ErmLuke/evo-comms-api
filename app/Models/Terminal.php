@@ -8,12 +8,13 @@ use App\Enums\ActivityStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Terminal extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'name',
         'model',
@@ -26,9 +27,14 @@ class Terminal extends Model
         return ActivityStatus::unknown();
     }
 
-    public function customer(): HasOne
+    public function clockings(): HasMany
     {
-        return $this->hasOne(Customer::class);
+        return $this->hasMany(Clocking::class, 'serial_number', 'serial_number');
+    }
+
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     public function lastConnection(): Carbon

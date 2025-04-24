@@ -91,7 +91,6 @@ export default function CustomerTable() {
         <div className="w-full">
             <div className="flex justify-between items-center mb-4">
                 <div className="flex gap-2">
-                    <Button variant="outline">Add Customer</Button>
                     <Button variant="outline">Add Terminal</Button>
                 </div>
 

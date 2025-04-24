@@ -7,10 +7,10 @@ export interface Customer {
 
 export type Terminal = {
     id: string;
-    name: string;
+    terminal_name: string;
     customer_id: string;
     serial_number: string;
-    model: number;
+    model: string;
     status: 'online' | 'offline' | 'idle' | string;
     created_at: string;
 };

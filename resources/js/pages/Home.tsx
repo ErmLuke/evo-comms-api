@@ -5,29 +5,40 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
-import { Clocking } from '@/types/types';
 import { format } from 'date-fns';
+
+type LogItem = {
+    id: number;
+    log: string;
+    created_at: string; // Added this!
+};
 
 export default function Home() {
     const navigate = useNavigate();
-    const [log, setLog] = useState<Clocking[]>([]);
+    const [logs, setLogs] = useState<LogItem[] | null>(null);
 
     useEffect(() => {
-        const fetchLog = async () => {
+        const fetchLogs = async () => {
             try {
-                const res = await fetch('http://evo-comms.test/api/clockings', {
+                const res = await fetch('http://evo-comms.test/api/logs', {
                     credentials: 'include',
                 });
-                const data: Clocking[] = await res.json();
-                setLog(data.slice(0, 20));
+                const data: LogItem[] = await res.json();
+
+                // Optional: Sort by most recent
+                const sorted = data.sort((a, b) =>
+                    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                );
+
+                setLogs(sorted.slice(0, 20)); // Keep just the latest 20
             } catch (err) {
-                console.error('Error fetching clockings:', err);
+                console.error('Error fetching logs:', err);
+                setLogs([]);
             }
         };
 
-        fetchLog();
-        const interval = setInterval(fetchLog, 5000);
-
+        fetchLogs();
+        const interval = setInterval(fetchLogs, 5000);
         return () => clearInterval(interval);
     }, []);
 
@@ -58,17 +69,19 @@ export default function Home() {
                     </CardHeader>
                     <CardContent className="max-h-80 overflow-auto">
                         <ul className="space-y-2 text-left text-sm">
-                            {log.length ? (
-                                log.map((clocking) => (
-                                    <li key={clocking.id} className="flex justify-between border-b pb-1">
-                                        <span className="text-muted-foreground">
-                                            {format(new Date(clocking.timestamp), 'PPpp')}
+                            {logs === null ? (
+                                <li className="text-muted-foreground">Loading logs...</li>
+                            ) : logs.length === 0 ? (
+                                <li className="text-muted-foreground">No logs found.</li>
+                            ) : (
+                                logs.map((logItem) => (
+                                    <li key={logItem.id} className="pb-1">
+                                        <span className="text-muted-foreground block">
+                                            {format(new Date(logItem.created_at), 'PPpp')}
                                         </span>
-                                        <Badge variant="secondary">{clocking.event_type}</Badge>
+                                        <span>{logItem.log}</span>
                                     </li>
                                 ))
-                            ) : (
-                                <li className="text-muted-foreground">No activity yet.</li>
                             )}
                         </ul>
                     </CardContent>

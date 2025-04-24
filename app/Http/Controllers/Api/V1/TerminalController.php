@@ -23,6 +23,7 @@ class TerminalController extends Controller
             'data' => $terminal,
         ], 201);
     }
+
     public function show(Terminal $terminal): TerminalResource
     {
         return new TerminalResource($terminal);
@@ -34,7 +35,12 @@ class TerminalController extends Controller
             'message' => 'Terminal deleted successfully.',
         ]);
     }
-
+    public function clockings(int $terminalId)
+    {
+        $terminal = Terminal::findOrFail($terminalId);
+        
+        return response()->json($terminal->clockings);
+    }
     public function index()
     {
         return Terminal::all();
